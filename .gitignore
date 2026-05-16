@@ -1,0 +1,50 @@
+# === Python ===
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+
+# === Environment & Secrets ===
+.env
+.env.local
+.env.production
+
+# === Database ===
+*.db
+*.sqlite
+*.sqlite3
+
+# === Firebase Service Account (CRITICAL - Never commit) ===
+serviceAccountKey.json
+firebase-adminsdk*.json
+
+# === ML Model Files (large binaries, regenerated on demand) ===
+models_data/
+
+# === Testing & Linting Cache ===
+.pytest_cache/
+.flake8
+.coverage
+htmlcov/
+
+# === Internal Dev Files (not for public repo) ===
+extract.py
+docx_output.txt
+scratch/
+stocksight_documentation.md
+
+# === Project Documentation (private/internal) ===
+StockSight_SRS.docx
+*.docx
+CLAUDE.md
+
+# === IDE & OS ===
+.vscode/
+.idea/
+*.DS_Store
+Thumbs.db

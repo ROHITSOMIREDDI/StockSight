@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About StockSight - Your Intelligent Market Companion</title>
+    <link rel="icon" type="image/jpeg" href="/static/img/brand/logo_dark.jpg">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .about-container {
+            max-width: 900px;
+            margin: 60px auto;
+            padding: 0 20px;
+        }
+        .hero-section {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        .hero-section h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .hero-section p {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+        .feature-card {
+            padding: 30px;
+            transition: transform 0.3s;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        .feature-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: var(--accent-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .feature-card p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        .education-section {
+            margin-top: 80px;
+            padding-top: 40px;
+            border-top: 1px solid var(--border-color);
+        }
+        .term-box {
+            margin-bottom: 40px;
+        }
+        .term-box h4 {
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+        }
+        .term-box p {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .developer-section {
+            margin-top: 100px;
+            padding: 40px;
+            background: rgba(59, 130, 246, 0.05);
+            border: 1px solid rgba(59, 130, 246, 0.15);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 40px;
+        }
+        .dev-image-box {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #60a5fa, #a78bfa);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: white;
+            flex-shrink: 0;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+        .dev-info h2 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+        .dev-info p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        .social-links {
+            display: flex;
+            gap: 15px;
+        }
+        .social-link {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: opacity 0.2s;
+        }
+        .social-link:hover { opacity: 0.8; }
+
+        @media (max-width: 600px) {
+            .developer-section {
+                flex-direction: column;
+                text-align: center;
+                padding: 30px 20px;
+            }
+            .dev-image-box { margin: 0 auto; }
+            .social-links { justify-content: center; }
+        }
+    </style>
+</head>
+<body class="dark-theme">
+    <div class="about-container">
+        <header style="margin-bottom: 40px;">
+            <a href="/" class="secondary-btn" style="text-decoration:none;">← Back to Home</a>
+        </header>
+
+        <section class="hero-section">
+            <h1>Welcome to StockSight</h1>
+            <p>Empowering retail investors with professional-grade analysis tools and AI-driven insights.</p>
+        </section>
+
+        <section class="features-grid">
+            <div class="feature-card glass-panel">
+                <h3>🔮 AI Predictions</h3>
+                <p>We use advanced Machine Learning models (Linear Regression, Random Forest, XGBoost) to forecast stock prices for the next trading day based on historical patterns.</p>
+            </div>
+            <div class="feature-card glass-panel">
+                <h3>📊 Strategy Backtesting</h3>
+                <p>Test your trading ideas before risking real money. Our simulator allows you to run SMA Crossovers and RSI Breakout strategies on historical data to see how they would have performed.</p>
+            </div>
+            <div class="feature-card glass-panel">
+                <h3>🔔 Real-time Alerts</h3>
+                <p>Never miss a price target. Set custom alerts for any stock, and we'll notify you via email the moment your price condition is met.</p>
+            </div>
+            <div class="feature-card glass-panel">
+                <h3>📂 Smart Watchlists</h3>
+                <p>Organize your favorite stocks into custom categories. Browse our "Explore" section to instantly track top-performing Nifty 100 companies.</p>
+            </div>
+            <div class="feature-card glass-panel">
+                <h3>💼 Portfolio Tracking</h3>
+                <p>Keep track of your holdings and see your real-time profit and loss (P&L) across all your investments in one unified dashboard.</p>
+            </div>
+            <div class="feature-card glass-panel">
+                <h3>🗞 Sentimental News</h3>
+                <p>Stay informed with news that is automatically analyzed for sentiment, helping you understand the market's mood at a glance.</p>
+            </div>
+        </section>
+
+        <section class="education-section">
+            <h2 style="font-size: 2rem; margin-bottom: 30px;">📚 Learning Center</h2>
+            
+            <div class="term-box">
+                <h4>🔗 SMA Crossover (Golden Cross / Death Cross)</h4>
+                <p>Simple Moving Average (SMA) crossover is a trend-following strategy. A "Golden Cross" occurs when a short-term SMA (e.g., 50-day) crosses above a long-term SMA (e.g., 200-day), signaling a bullish trend. Conversely, a "Death Cross" signals a bearish trend.</p>
+                <a href="https://www.investopedia.com/terms/g/goldencross.asp" target="_blank" style="color:var(--accent-color); font-size: 0.85rem; text-decoration: none;">Read more on Investopedia →</a>
+            </div>
+
+            <div class="term-box">
+                <h4>📈 RSI Breakout (Relative Strength Index)</h4>
+                <p>RSI is a momentum oscillator that measures the speed and change of price movements. Traditionally, an RSI above 70 indicates an overbought condition (potential sell), while below 30 indicates an oversold condition (potential buy).</p>
+                <a href="https://www.investopedia.com/terms/r/rsi.asp" target="_blank" style="color:var(--accent-color); font-size: 0.85rem; text-decoration: none;">Read more on Investopedia →</a>
+            </div>
+
+            <div class="term-box">
+                <h4>📊 Bollinger Bands</h4>
+                <p>These consist of a middle SMA with two outer bands that represent standard deviations of the price. They help identify volatility and potential overextended price levels. When price touches the upper band, it may be overbought; the lower band may indicate oversold.</p>
+                <a href="https://www.investopedia.com/terms/b/bollingerbands.asp" target="_blank" style="color:var(--accent-color); font-size: 0.85rem; text-decoration: none;">Read more on Investopedia →</a>
+            </div>
+
+            <div class="term-box">
+                <h4>📉 MACD (Moving Average Convergence Divergence)</h4>
+                <p>MACD is a trend-following momentum indicator that shows the relationship between two moving averages of a security’s price. It's used to trigger buy and sell signals through crossovers and divergence.</p>
+                <a href="https://www.investopedia.com/terms/m/macd.asp" target="_blank" style="color:var(--accent-color); font-size: 0.85rem; text-decoration: none;">Read more on Investopedia →</a>
+            </div>
+        </section>
+
+        <section class="developer-section">
+            <div class="dev-image-box">
+                <img src="/static/img/dev/rohit_profile1.png" alt="Rohit" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+            </div>
+            <div class="dev-info">
+                <h2>Meet the Developer - Rohit</h2>
+                <p>StockSight was envisioned and built by Rohit with a passion for simplifying complex financial data. As a full-stack developer, Rohit is dedicated to building tools that help investors make data-driven decisions using modern web technologies and AI.</p>
+                <div class="social-links">
+                    <a href="https://github.com/ROHITSOMIREDDI" class="social-link">GitHub</a>
+                    <a href="https://www.linkedin.com/in/rohit-somireddi" class="social-link">LinkedIn</a>
+                    <a href="https://www.instagram.com/r_roh.it1.28" class="social-link">Instagram</a>
+                    <a href="mailto:rohitpc161221@gmail.com" class="social-link">Email Me</a>
+                </div>
+            </div>
+        </section>
+        
+        <footer style="text-align: center; margin-top: 100px; padding-bottom: 40px; color: var(--text-secondary); font-size: 0.9rem;">
+            <p id="authCta">&copy; 2026 StockSight. Ready to start? <a href="/login" style="color:var(--accent-color); font-weight:600; text-decoration:none;">Login to your Dashboard</a></p>
+            <p>© 2026 StockSight. Not financial advice. For educational purposes only.</p>
+        </footer>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="/static/js/firebase-config.js"></script>
+
+    <script>
+        // Set body theme based on localStorage
+        if (localStorage.getItem('stocksight_theme') === 'light') {
+            document.body.classList.remove('dark-theme');
+            document.body.classList.add('light-theme');
+        }
+
+        // Hide login CTA if already logged in
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                const cta = document.getElementById('authCta');
+                if (cta) cta.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Tracker - StockSight</title>
+    <link rel="icon" type="image/jpeg" href="/static/img/brand/logo_dark.jpg">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/css/style.css">
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="/static/js/firebase-config.js"></script>
+    <style>
+        .portfolio-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        .portfolio-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        .portfolio-header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .nav-btn-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        /* Summary Grid */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 35px;
+        }
+        .summary-card {
+            padding: 20px;
+        }
+        .summary-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+        }
+        .summary-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+        /* Entry Form Section */
+        .add-holding-panel {
+            margin-bottom: 35px;
+            padding: 20px;
+        }
+        .add-holding-panel h2 {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)) 120px;
+            gap: 15px;
+            align-items: flex-end;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .form-group label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        .form-group input {
+            padding: 10px 12px;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            border-radius: 6px;
+            outline: none;
+            font-family: 'Inter', sans-serif;
+            transition: border-color 0.2s;
+        }
+        .form-group input:focus {
+            border-color: var(--accent-color);
+        }
+        /* Holdings Table */
+        .holdings-panel {
+            padding: 24px;
+        }
+        .holdings-panel h2 {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+        .holdings-table-container {
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+        th, td {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        th {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+        .holding-ticker {
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        .holding-name {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            display: block;
+            margin-top: 2px;
+        }
+        .delete-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: color 0.2s;
+            font-size: 1.1rem;
+        }
+        .delete-btn:hover {
+            color: var(--negative);
+        }
+        .empty-portfolio {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body class="dark-theme">
+    <div class="portfolio-container hidden-onload" id="portfolioContent">
+        <header class="portfolio-header">
+            <div style="display:flex; align-items:center; gap:15px;">
+                <a href="/" class="secondary-btn" style="text-decoration:none; display:inline-flex; align-items:center; gap:8px;">
+                    ← Back
+                </a>
+                <h1>Portfolio Tracker</h1>
+                <p style="color:var(--text-secondary); font-size:0.9rem; margin-top:5px;">Simulated portfolio — no real money involved.</p>
+            </div>
+            <div class="nav-btn-group" style="display:flex; align-items:center; gap:20px;">
+                <span id="navClock" style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 500; border-right: 1px solid var(--border-color); padding-right: 20px; font-variant-numeric: tabular-nums;">--</span>
+                <a href="/watchlist" class="nav-btn" style="text-decoration:none;">⭐ Watchlist</a>
+                <button id="themeToggleBtn" class="nav-btn theme-btn">🌙</button>
+            </div>
+        </header>
+
+        <!-- Summary Statistics Grid -->
+        <div class="summary-grid">
+            <div class="summary-card glass-panel">
+                <div class="summary-label">Total Invested</div>
+                <div class="summary-value" id="totalInvested">₹0.00</div>
+            </div>
+            <div class="summary-card glass-panel">
+                <div class="summary-label">Current Value</div>
+                <div class="summary-value" id="currentValue">₹0.00</div>
+            </div>
+            <div class="summary-card glass-panel">
+                <div class="summary-label">Total Profit / Loss</div>
+                <div class="summary-value" id="totalPL">₹0.00</div>
+            </div>
+            <div class="summary-card glass-panel">
+                <div class="summary-label">Total ROI</div>
+                <div class="summary-value" id="totalROI">0.00%</div>
+            </div>
+        </div>
+
+        <!-- Add Holding Interactive Panel -->
+        <div class="add-holding-panel glass-panel">
+            <h2>➕ Add New Holding</h2>
+            <form id="holdingForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="tickerInput">Ticker Symbol (NSE/BSE)</label>
+                        <input type="text" id="tickerInput" placeholder="e.g. RELIANCE.NS" required autocomplete="off">
+                    </div>
+                    <div class="form-group">
+                        <label for="sharesInput">Shares Owned</label>
+                        <input type="number" id="sharesInput" placeholder="e.g. 10" step="any" min="0.0001" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="buyPriceInput">Average Buy Price (₹)</label>
+                        <input type="number" id="buyPriceInput" placeholder="e.g. 1420.50" step="any" min="0.01" required>
+                    </div>
+                    <button type="submit" class="primary-btn" style="height:44px; font-weight:600; padding: 0;">Add</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Holdings Details Panel -->
+        <div class="holdings-panel glass-panel">
+            <h2>📈 My Holdings</h2>
+            <div class="holdings-table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Stock</th>
+                            <th>Qty</th>
+                            <th>Buy Price</th>
+                            <th>Current Price</th>
+                            <th>Current Value</th>
+                            <th>P&L (Return)</th>
+                            <th style="width: 80px; text-align: center;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="holdingsTableBody">
+                        <tr>
+                            <td colspan="7" class="empty-portfolio">Loading portfolio details...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <footer style="margin-top: 50px; padding: 20px; text-align: center; color: var(--text-secondary); font-size: 0.85rem; border-top: 1px solid var(--border-color);">
+        <p>© 2026 StockSight. Not financial advice. For educational purposes only.</p>
+    </footer>
+
+    <!-- Script Links -->
+    <script src="/static/js/portfolio.js"></script>
+</body>
+</html>

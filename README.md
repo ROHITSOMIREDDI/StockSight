@@ -493,9 +493,24 @@ In production, the following CSP directives are enforced:
 
 ## 12. Deployment Guide
 
-### Local Development
+### Option 1: Render.com (Recommended - 100% Free)
+Render is the easiest way to host StockSight for free without a credit card.
+
+1.  **Create a Render account** at [render.com](https://render.com/).
+2.  **Connect your GitHub** and select your `StockSight` repository.
+3.  Render will automatically detect the `render.yaml` file and set up the service.
+4.  **Configure Secrets**: In the Render Dashboard, go to **Environment** and add:
+    - `MAIL_USERNAME`: Your Gmail address
+    - `MAIL_PASSWORD`: Your Gmail App Password
+    - `FIREBASE_SERVICE_ACCOUNT`: The contents of your `serviceAccountKey.json` (as a one-line string)
+5.  **Deploy**: Render will build the Docker container and your site will be live!
+
+> **Note:** On the free tier, the site will "sleep" after 15 minutes of inactivity. The first request may take ~30 seconds to wake up.
+
+### Option 2: Local Development
 ```bash
-# 1. Clone the repository and navigate to project folder
+# 1. Clone the repository
+git clone https://github.com/ROHITSOMIREDDI/StockSight.git
 cd stocksight
 
 # 2. Create and activate virtual environment
@@ -506,78 +521,8 @@ source venv/bin/activate   # Linux/macOS
 # 3. Install dependencies
 pip install -r requirements.txt
 
-# 4. Configure environment variables
-copy .env.example .env
-# Edit .env with your credentials
-
-# 5. Place your Firebase Service Account file
-# Save as: serviceAccountKey.json in project root
-
-# 6. Run the development server
+# 4. Run the development server
 python app.py
-# App available at: http://127.0.0.1:5000
-```
-
-### Environment Variables (`.env`)
-```ini
-FLASK_ENV=development
-SECRET_KEY=your-super-secret-key-here
-
-# Database
-DATABASE_URL=sqlite:///stocksight.db
-
-# Redis (optional, falls back gracefully)
-REDIS_URL=redis://localhost:6379/0
-
-# Cache TTL (seconds)
-CACHE_TTL_QUOTE=300
-CACHE_TTL_HISTORY=3600
-
-# CORS
-CORS_ORIGINS=http://localhost:5000
-
-# Email Alerts (Gmail SMTP)
-MAIL_SERVER=smtp.gmail.com
-MAIL_PORT=587
-MAIL_USE_TLS=True
-MAIL_USERNAME=your-email@gmail.com
-MAIL_PASSWORD=your-gmail-app-password
-MAIL_DEFAULT_SENDER=noreply@stocksight.com
-
-# Firebase (Production — JSON string of service account)
-FIREBASE_SERVICE_ACCOUNT={"type":"service_account",...}
-```
-
-### Production Deployment (Google Cloud Run)
-```bash
-# 1. Build Docker image
-docker build -t stocksight .
-
-# 2. Push to Google Container Registry
-docker tag stocksight gcr.io/<PROJECT_ID>/stocksight
-docker push gcr.io/<PROJECT_ID>/stocksight
-
-# 3. Deploy to Cloud Run
-gcloud run deploy stocksight \
-  --image gcr.io/<PROJECT_ID>/stocksight \
-  --platform managed \
-  --region asia-south1 \
-  --allow-unauthenticated \
-  --set-env-vars FLASK_ENV=production
-
-# 4. Set secrets via Secret Manager
-gcloud secrets create stocksight-env --data-file=.env.production
-```
-
-### Recommended Dockerfile
-```dockerfile
-FROM python:3.11-slim
-WORKDIR /app
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-COPY . .
-EXPOSE 8080
-CMD ["gunicorn", "--bind", "0.0.0.0:8080", "--workers", "2", "--timeout", "120", "app:create_app()"]
 ```
 
 ---

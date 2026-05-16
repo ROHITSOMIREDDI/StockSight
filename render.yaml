@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: stocksight
+    env: docker
+    plan: free
+    region: singapore
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        value: sqlite:///stocksight.db
+      - key: CACHE_TTL_QUOTE
+        value: 300
+      - key: CACHE_TTL_HISTORY
+        value: 3600
+      - key: MAIL_SERVER
+        value: smtp.gmail.com
+      - key: MAIL_PORT
+        value: 587
+      - key: MAIL_USE_TLS
+        value: "True"
+      - key: MAIL_USERNAME
+        sync: false
+      - key: MAIL_PASSWORD
+        sync: false
+      - key: FIREBASE_SERVICE_ACCOUNT
+        sync: false

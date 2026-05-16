@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StockSight - AI-Powered Stock Analysis</title>
+    <link rel="icon" type="image/jpeg" href="/static/img/brand/logo_dark.jpg">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/css/style.css">
+    <!-- Chart.js & Plugins -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-financial"></script>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="/static/js/firebase-config.js"></script>
+</head>
+<body class="dark-theme">
+    <div class="app-container hidden-onload" id="appContent">
+        <header class="top-nav">
+            <div class="logo">
+                <img id="siteLogo" src="/static/img/brand/logo_dark.jpg" alt="StockSight" style="height: 32px; width: auto; border-radius: 4px;">
+                <h1>StockSight</h1>
+            </div>
+            <div class="nav-right">
+                <div id="userMenuContainer" class="hidden" style="position: relative; display: flex; align-items: center; gap: 15px;">
+                    <span id="navClock" style="font-size: 0.75rem; color: var(--text-secondary); font-weight: 500; border-right: 1px solid var(--border-color); padding-right: 15px; font-variant-numeric: tabular-nums;">--</span>
+                    <div style="position: relative;">
+                        <button id="userGreetingBtn" class="nav-btn" style="border: none; background: transparent; font-size: 0.85rem; color: var(--text-secondary); font-weight: 500; cursor: pointer; padding: 4px 8px;">Hi, <strong id="greetingName" style="color:var(--text-primary);">User</strong> ▼</button>
+                        <div id="userDropdown" class="watchlist-content hidden" style="position: absolute; right: 0; top: 100%; margin-top: 8px; width: 150px; z-index: 300;">
+                            <div id="logoutDropdownItem" class="watchlist-item" style="font-size: 0.85rem; padding: 10px 15px; color: var(--negative);">🚪 Sign Out</div>
+                        </div>
+                    </div>
+                </div>
+                <div id="authLinks" class="hidden" style="display: flex; gap: 5px;">
+                    <a href="/portfolio" class="nav-btn" style="text-decoration: none;">💼 Portfolio</a>
+                    <a href="/watchlist" class="nav-btn" style="text-decoration: none;">⭐ Watchlist</a>
+                    <a href="/about" class="nav-btn" style="text-decoration: none;">📖 About</a>
+                </div>
+                <button id="themeToggleBtn" class="nav-btn theme-btn">🌙</button>
+                <a href="/login" id="loginLink" class="nav-btn" style="text-decoration: none;">🔑 Login</a>
+            </div>
+        </header>
+
+        <!-- Landing View (Guest Only) -->
+        <section id="guestLanding" class="landing-container hidden">
+            <div class="landing-hero">
+                <h1 class="glitch-text">StockSight</h1>
+                <p class="hero-subtitle">Next-Gen Stock Analysis & AI Forecasting</p>
+                
+                <div class="landing-search-box glass-panel">
+                    <input type="text" id="landingTickerSearch" placeholder="Enter Company Name (e.g. RELIANCE)..." autocomplete="off">
+                    <div id="landingSearchResults" class="search-results hidden"></div>
+                    <p class="search-hint">Search any Indian stock to view its live chart</p>
+                </div>
+            </div>
+
+            <div id="guestChartSection" class="hidden">
+                <div class="guest-chart-card glass-panel">
+                    <div class="guest-chart-header">
+                        <h2 id="guestStockTitle">--</h2>
+                        <div id="guestPriceDisplay">--</div>
+                    </div>
+                    <div id="guestMainChart" style="height: 400px; width: 100%;">
+                        <canvas id="guestChartCanvas"></canvas>
+                    </div>
+                    <div class="lock-cta">
+                        <p>Unlock AI Predictions, Technical Indicators, and Backtesting</p>
+                        <a href="/signup" class="primary-btn">Create Free Account</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="services-grid">
+                <div class="service-card glass-panel">
+                    <div class="service-icon">🔮</div>
+                    <h3>AI Forecasting</h3>
+                    <p>Predict tomorrow's price with 95%+ accuracy using XGBoost and Linear Regression models.</p>
+                </div>
+                <div class="service-card glass-panel">
+                    <div class="service-icon">📊</div>
+                    <h3>Backtesting</h3>
+                    <p>Simulate trading strategies on historical data before you invest a single rupee.</p>
+                </div>
+                <div class="service-card glass-panel">
+                    <h3>🔔 Smart Alerts</h3>
+                    <p>Get instant email notifications when your favorite stocks hit your target price.</p>
+                </div>
+                <div class="service-card glass-panel">
+                    <div class="service-icon">📈</div>
+                    <h3>Portfolio Tracking</h3>
+                    <p>Real-time P&L tracking for your entire investment portfolio in one place.</p>
+                </div>
+            </div>
+        </section>
+
+        <main id="mainDashboard" class="dashboard-grid hidden">
+            <!-- Sidebar / Stats Panel -->
+            <aside class="stats-panel glass-panel">
+                <div class="search-container" style="width: 100%; margin-bottom: 25px;">
+                    <input type="text" id="tickerSearch" placeholder="Search Indian stock (e.g. RELIANCE)..." autocomplete="off" style="width: 100%;">
+                    <div class="search-results hidden" id="searchResults"></div>
+                </div>
+
+                <div class="stock-header">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <h3 id="stockTicker" style="font-size: 2.2rem; font-weight: 700; margin: 0;">--</h3>
+                        <div style="position: relative;">
+                            <button id="actionMenuBtn" title="More Actions" style="border: none; background: transparent; font-size: 1.8rem; padding: 0 4px; cursor: pointer; color: var(--text-secondary); line-height: 1; transition: color 0.2s;">⋮</button>
+                            <div id="actionDropdown" class="watchlist-content hidden" style="position: absolute; right: 0; top: 100%; margin-top: 8px; width: 200px; z-index: 300;">
+                                <div id="addWatchlistBtn" class="watchlist-item" style="font-size: 0.85rem; padding: 12px 15px;">⭐ Add to Watchlist</div>
+                                <div id="addPortfolioBtn" class="watchlist-item" style="font-size: 0.85rem; padding: 12px 15px;">💼 Add to Portfolio</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="price-display">
+                    <h1 id="currentPrice">₹--</h1>
+                    <div class="price-change" id="priceChange">
+                        <span id="changeValue">--</span> (<span id="changePct">--</span>)
+                    </div>
+                </div>
+                
+                <div class="stats-grid" style="grid-template-columns: repeat(2, 1fr); gap:12px; margin-bottom:20px;">
+                    <div class="stat-box" style="padding:10px;">
+                        <span class="stat-label">Open</span>
+                        <span class="stat-value" id="dayOpen" style="font-size:0.9rem;">--</span>
+                    </div>
+                    <div class="stat-box" style="padding:10px;">
+                        <span class="stat-label">Prev Close</span>
+                        <span class="stat-value" id="prevClose" style="font-size:0.9rem;">--</span>
+                    </div>
+                    <div class="stat-box" style="padding:10px;">
+                        <span class="stat-label">Day High</span>
+                        <span class="stat-value" id="dayHigh" style="font-size:0.9rem;">--</span>
+                    </div>
+                    <div class="stat-box" style="padding:10px;">
+                        <span class="stat-label">Day Low</span>
+                        <span class="stat-value" id="dayLow" style="font-size:0.9rem;">--</span>
+                    </div>
+                    <div class="stat-box" style="padding:10px;">
+                        <span class="stat-label">52W High</span>
+                        <span class="stat-value" id="high52" style="font-size:0.9rem;">--</span>
+                    </div>
+                    <div class="stat-box" style="padding:10px;">
+                        <span class="stat-label">52W Low</span>
+                        <span class="stat-value" id="low52" style="font-size:0.9rem;">--</span>
+                    </div>
+                    <div class="stat-box" style="padding:10px; grid-column: span 2;">
+                        <span class="stat-label">Market Cap</span>
+                        <span class="stat-value" id="marketCap" style="font-size:0.9rem;">--</span>
+                    </div>
+                </div>
+
+                <div class="gauge-container">
+                    <div class="gauge-labels">
+                        <span id="gaugeLow">--</span>
+                        <span>52W Range</span>
+                        <span id="gaugeHigh">--</span>
+                    </div>
+                    <div class="gauge-track">
+                        <div class="gauge-fill" id="gaugeFill"></div>
+                    </div>
+                </div>
+
+                <div class="auth-restricted-container" style="margin-top: 15px;">
+                    <div class="auth-restricted-content">
+                        <div class="prediction-box">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                <h3 style="font-size: 0.95rem; font-weight: 700; margin: 0;">AI Prediction (Next Day)</h3>
+                                <select id="modelSelector" style="padding: 4px 6px; background: rgba(15, 23, 42, 0.8); border: 1px solid var(--border-color); color: white; border-radius: 4px; outline: none; font-size: 0.75rem; font-family: 'Inter', sans-serif; cursor: pointer;">
+                                    <option value="linear_regression">Linear Regression</option>
+                                    <option value="random_forest">Random Forest</option>
+                                    <option value="xgboost">XGBoost / GBDT</option>
+                                </select>
+                            </div>
+                            <div class="pred-price" id="predictedPrice">--</div>
+                            <div class="pred-interval" id="predInterval">Interval: -- to --</div>
+                            <div class="pred-metrics">
+                                <span>MAE: <span id="predMae">--</span></span>
+                                <span>R²: <span id="predR2">--</span></span>
+                            </div>
+                        </div>
+
+                        <button id="setAlertBtn" class="primary-btn" style="width: 100%; margin-top: 15px; display: flex; align-items: center; justify-content: center; gap: 8px;">🔔 Set Price Alert</button>
+
+                        <!-- Market Indices (Neat with Sparklines) -->
+                </div>
+
+                <!-- Market Indices (Always Visible) -->
+                <div style="display:grid; grid-template-columns:1fr; gap:15px; margin-top:25px;">
+                    <div class="stat-box" style="padding:15px; background:rgba(59, 130, 246, 0.02); border-color:rgba(59, 130, 246, 0.1);">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                            <div>
+                                <span class="stat-label" style="font-size:0.7rem; color:var(--text-secondary); letter-spacing:1px;">SENSEX</span>
+                                <div id="sensexPrice" style="font-weight:700; font-size:1.1rem;">--</div>
+                            </div>
+                            <div id="sensexChange" style="font-size:0.75rem; font-weight:600;">--</div>
+                        </div>
+                        <div style="height:40px; margin:10px 0;">
+                            <canvas id="sensexSparkline"></canvas>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; border-top:1px solid rgba(255,255,255,0.05); padding-top:10px; margin-top:5px;">
+                            <div><span style="font-size:0.6rem; color:var(--text-secondary); text-transform:uppercase;">Open:</span> <span id="sensexOpen" style="font-size:0.75rem; font-weight:600;">--</span></div>
+                            <div><span style="font-size:0.6rem; color:var(--text-secondary); text-transform:uppercase;">Prev Close:</span> <span id="sensexPrevClose" style="font-size:0.75rem; font-weight:600;">--</span></div>
+                        </div>
+                    </div>
+
+                    <div class="stat-box" style="padding:15px; background:rgba(59, 130, 246, 0.02); border-color:rgba(59, 130, 246, 0.1);">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                            <div>
+                                <span class="stat-label" style="font-size:0.7rem; color:var(--text-secondary); letter-spacing:1px;">NIFTY 50</span>
+                                <div id="niftyPrice" style="font-weight:700; font-size:1.1rem;">--</div>
+                            </div>
+                            <div id="niftyChange" style="font-size:0.75rem; font-weight:600;">--</div>
+                        </div>
+                        <div style="height:40px; margin:10px 0;">
+                            <canvas id="niftySparkline"></canvas>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; border-top:1px solid rgba(255,255,255,0.05); padding-top:10px; margin-top:5px;">
+                            <div><span style="font-size:0.6rem; color:var(--text-secondary); text-transform:uppercase;">Open:</span> <span id="niftyOpen" style="font-size:0.75rem; font-weight:600;">--</span></div>
+                            <div><span style="font-size:0.6rem; color:var(--text-secondary); text-transform:uppercase;">Prev Close:</span> <span id="niftyPrevClose" style="font-size:0.75rem; font-weight:600;">--</span></div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Chart Area -->
+            <section class="chart-section glass-panel">
+                <div class="chart-controls">
+                    <div class="timeframe-selector">
+                        <button class="tf-btn" data-period="1w">1W</button>
+                        <button class="tf-btn" data-period="1m">1M</button>
+                        <button class="tf-btn" data-period="3m">3M</button>
+                        <button class="tf-btn active" data-period="1y">1Y</button>
+                        <button class="tf-btn" data-period="5y">5Y</button>
+                    </div>
+                    <div class="chart-type-selector">
+                        <button class="ct-btn active" data-type="candlestick">Candle</button>
+                        <button class="ct-btn" data-type="line">Line</button>
+                        <button class="ct-btn" id="exportCsvBtn">📥 Export CSV</button>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="mainChart"></canvas>
+                </div>
+                <div class="chart-container-volume">
+                    <canvas id="volumeChart"></canvas>
+                </div>
+
+                <!-- Technical Indicators separate panels -->
+                <div class="chart-container-indicator" style="height: 180px; position: relative; margin-top: 25px; border-top: 1px solid var(--border-color); padding-top: 15px;">
+                    <h4 style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 8px; font-weight: 600;">Bollinger Bands (20, 2)</h4>
+                    <canvas id="bbChart"></canvas>
+                </div>
+
+                <div class="chart-container-indicator" style="height: 150px; position: relative; margin-top: 25px; border-top: 1px solid var(--border-color); padding-top: 15px;">
+                    <h4 style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 8px; font-weight: 600;">RSI (14)</h4>
+                    <canvas id="rsiChart"></canvas>
+                </div>
+
+                <div class="chart-container-indicator" style="height: 180px; position: relative; margin-top: 25px; border-top: 1px solid var(--border-color); padding-top: 15px;">
+                    <h4 style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 8px; font-weight: 600;">MACD (12, 26, 9)</h4>
+                    <canvas id="macdChart"></canvas>
+                </div>
+
+                <!-- Backtesting Strategy Engine Section -->
+                <div class="auth-restricted-container" style="margin-top: 35px; border-top: 1px solid var(--border-color); padding-top: 20px;">
+                    <div class="auth-restricted-content">
+                        <div class="backtest-section">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+                                <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin: 0;">📊 Backtesting Strategy Engine</h3>
+                                <div style="display: flex; gap: 10px; align-items: center;">
+                                    <select id="backtestStrategy" style="padding: 8px 12px; background: rgba(15, 23, 42, 0.8); border: 1px solid var(--border-color); color: white; border-radius: 6px; outline: none; font-family: 'Inter', sans-serif; font-size: 0.85rem; cursor: pointer;">
+                                        <option value="sma_crossover">SMA Crossover (Golden Cross)</option>
+                                        <option value="rsi_breakout">RSI Breakout (&lt;30 Buy, &gt;70 Sell)</option>
+                                    </select>
+                                    <button id="runBacktestBtn" class="primary-btn" style="height: 36px; padding: 0 15px; font-size: 0.85rem; font-weight: 600;">Run Simulator</button>
+                                </div>
+                            </div>
+                            
+                            <div id="backtestResults" class="hidden" style="margin-top: 15px;">
+                                <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                                    <div class="stat-box" style="padding: 12px 15px;">
+                                        <span class="stat-label">Initial Capital</span>
+                                        <span class="stat-value" id="btInitial" style="font-size:1.15rem;">₹1,00,000.00</span>
+                                    </div>
+                                    <div class="stat-box" style="padding: 12px 15px;">
+                                        <span class="stat-label">Ending Capital</span>
+                                        <span class="stat-value" id="btFinal" style="font-size:1.15rem;">--</span>
+                                    </div>
+                                    <div class="stat-box" style="padding: 12px 15px;">
+                                        <span class="stat-label">Total Return</span>
+                                        <span class="stat-value" id="btReturn" style="font-size:1.15rem;">--</span>
+                                    </div>
+                                    <div class="stat-box" style="padding: 12px 15px;">
+                                        <span class="stat-label">Total Trades</span>
+                                        <span class="stat-value" id="btTrades" style="font-size:1.15rem;">--</span>
+                                    </div>
+                                    <div class="stat-box" style="padding: 12px 15px;">
+                                        <span class="stat-label">Win Rate</span>
+                                        <span class="stat-value" id="btWinRate" style="font-size:1.15rem;">--</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="chart-container-indicator" style="height: 200px; position: relative; margin-bottom: 20px;">
+                                    <h4 style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 10px; font-weight: 600;">Strategy Account Equity Curve</h4>
+                                    <canvas id="btChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="auth-lock-overlay">
+                        <h4>📊 Strategy Simulator Locked</h4>
+                        <a href="/login" class="primary-btn">Login to Unlock</a>
+                    </div>
+                </div>
+
+                <!-- Price Alert Modal -->
+                <div id="alertModal" class="modal hidden">
+                    <div class="modal-content glass-panel" style="width: 350px;">
+                        <h3 style="font-size:1.2rem; font-weight:700; margin-bottom:15px;">Set Price Alert</h3>
+                        <div style="display: flex; flex-direction: column; gap: 12px;">
+                            <div style="display: flex; flex-direction: column; gap: 4px;">
+                                <label style="font-size: 0.8rem; color: var(--text-secondary);">Condition</label>
+                                <select id="alertCondition" style="padding: 10px; background: rgba(15, 23, 42, 0.8); border: 1px solid var(--border-color); color: white; border-radius: 6px; outline: none; font-family: 'Inter', sans-serif;">
+                                    <option value="ABOVE">Price Goes ABOVE</option>
+                                    <option value="BELOW">Price Goes BELOW</option>
+                                </select>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 4px;">
+                                <label style="font-size: 0.8rem; color: var(--text-secondary);">Target Price (₹)</label>
+                                <input type="number" id="alertTargetPrice" step="any" required placeholder="e.g. 1450">
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 4px;">
+                                <label style="font-size: 0.8rem; color: var(--text-secondary);">Your Email Address</label>
+                                <input type="email" id="alertEmail" required placeholder="e.g. you@example.com">
+                            </div>
+                            <div class="modal-actions" style="margin-top: 10px;">
+                                <button id="saveAlertBtn" class="primary-btn">Save Alert</button>
+                                <button id="closeAlertBtn" class="secondary-btn">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Add Portfolio Modal -->
+                <div id="addPortfolioModal" class="modal hidden">
+                    <div class="modal-content glass-panel" style="width: 350px;">
+                        <h3 style="font-size:1.2rem; font-weight:700; margin-bottom:15px;">Add to Portfolio</h3>
+                        <div style="display: flex; flex-direction: column; gap: 12px;">
+                            <div style="display: flex; flex-direction: column; gap: 4px;">
+                                <label style="font-size: 0.8rem; color: var(--text-secondary);">Stock Ticker</label>
+                                <input type="text" id="portTickerInput" disabled style="background: rgba(0,0,0,0.2); border: 1px solid var(--border-color); color: var(--text-secondary); padding: 10px; border-radius: 6px;">
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 4px;">
+                                <label style="font-size: 0.8rem; color: var(--text-secondary);">Number of Shares</label>
+                                <input type="number" id="portSharesInput" step="any" required placeholder="e.g. 10">
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 4px;">
+                                <label style="font-size: 0.8rem; color: var(--text-secondary);">Buy Price (₹)</label>
+                                <input type="number" id="portBuyPriceInput" step="any" required placeholder="e.g. 2450">
+                            </div>
+                            <div class="modal-actions" style="margin-top: 10px;">
+                                <button id="savePortfolioBtn" class="primary-btn">Save Asset</button>
+                                <button id="closePortfolioBtn" class="secondary-btn">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="news-section">
+                <h2>Recent News</h2>
+                <div class="news-grid" id="newsGrid">
+                    <div class="news-loading">Loading news...</div>
+                </div>
+            </section>
+        </main>
+        
+        <footer style="margin-top: 50px; padding: 20px; text-align: center; color: var(--text-secondary); font-size: 0.85rem; border-top: 1px solid var(--border-color);">
+            <p>© 2026 StockSight. Not financial advice. For educational purposes only.</p>
+        </footer>
+    </div>
+    
+    <script src="/static/js/dashboard.js"></script>
+</body>
+</html>

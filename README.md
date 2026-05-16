@@ -19,7 +19,9 @@
 
 ---
 
-> **Live Demo:** Coming Soon · **Version:** 1.0.0 · **Built by:** [Rohit Somireddi](https://github.com/ROHITSOMIREDDI)
+> **🚀 Live Demo:** [https://stocksight-gm2o.onrender.com/](https://stocksight-gm2o.onrender.com/)
+>
+> **📢 Community Feedback:** We are looking for suggestions! If you find a bug or have a feature idea, please open an [Issue](https://github.com/ROHITSOMIREDDI/StockSight/issues) or reach out to the developer.
 
 ---
 

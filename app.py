@@ -16,12 +16,25 @@ def create_app():
 
     # HTTP Security Headers
     csp = {
-        'default-src': ["'self'", "https://*.firebaseapp.com", "https://*.googleapis.com"],
-        'script-src': ["'self'", "'unsafe-inline'", "https://www.gstatic.com", "https://cdn.jsdelivr.net"],
+        'default-src': ["'self'", "https://*.firebaseapp.com", "https://*.googleapis.com", "https://*.firebaseio.com"],
+        'script-src': [
+            "'self'", 
+            "'unsafe-inline'", 
+            "https://www.gstatic.com", 
+            "https://cdn.jsdelivr.net",
+            "https://apis.google.com",
+            "https://*.firebaseapp.com"
+        ],
         'style-src': ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
         'font-src': ["'self'", "https://fonts.gstatic.com"],
-        'img-src': ["'self'", "data:", "https://www.gstatic.com", "https://*.google.com"],
-        'connect-src': ["'self'", "https://*.firebaseio.com", "https://*.googleapis.com", "https://query2.finance.yahoo.com"]
+        'img-src': ["'self'", "data:", "https://www.gstatic.com", "https://*.google.com", "https://*.googleusercontent.com"],
+        'connect-src': [
+            "'self'", 
+            "https://*.firebaseio.com", 
+            "https://*.googleapis.com", 
+            "https://query2.finance.yahoo.com",
+            "https://www.gstatic.com"
+        ]
     }
     Talisman(app, content_security_policy=csp if app.config['FLASK_ENV'] == 'production' else None, force_https=False) # force_https=False for local dev
     

@@ -39,8 +39,7 @@
 9. [Frontend Architecture](#9-frontend-architecture)
 10. [Security Implementation](#10-security-implementation)
 11. [Caching Strategy](#11-caching-strategy)
-12. [Deployment Guide](#12-deployment-guide)
-13. [Configuration Reference](#13-configuration-reference)
+12. [Configuration Reference](#13-configuration-reference)
 
 ---
 
@@ -493,43 +492,8 @@ In production, the following CSP directives are enforced:
 
 ---
 
-## 12. Deployment Guide
 
-### Option 1: Render.com (Recommended - 100% Free)
-Render is the easiest way to host StockSight for free without a credit card.
-
-1.  **Create a Render account** at [render.com](https://render.com/).
-2.  **Connect your GitHub** and select your `StockSight` repository.
-3.  Render will automatically detect the `render.yaml` file and set up the service.
-4.  **Configure Secrets**: In the Render Dashboard, go to **Environment** and add:
-    - `MAIL_USERNAME`: Your Gmail address
-    - `MAIL_PASSWORD`: Your Gmail App Password
-    - `FIREBASE_SERVICE_ACCOUNT`: The contents of your `serviceAccountKey.json` (as a one-line string)
-5.  **Deploy**: Render will build the Docker container and your site will be live!
-
-> **Note:** On the free tier, the site will "sleep" after 15 minutes of inactivity. The first request may take ~30 seconds to wake up.
-
-### Option 2: Local Development
-```bash
-# 1. Clone the repository
-git clone https://github.com/ROHITSOMIREDDI/StockSight.git
-cd stocksight
-
-# 2. Create and activate virtual environment
-python -m venv venv
-venv\Scripts\activate      # Windows
-source venv/bin/activate   # Linux/macOS
-
-# 3. Install dependencies
-pip install -r requirements.txt
-
-# 4. Run the development server
-python app.py
-```
-
----
-
-## 13. Configuration Reference
+## 12. Configuration Reference
 
 | Variable | Default | Description |
 |---|---|---|
